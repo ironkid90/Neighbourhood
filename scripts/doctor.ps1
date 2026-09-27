@@ -34,6 +34,16 @@ $pluginOk = (Test-Path (Join-Path $Hermes 'desktop-plugins\neighbourhood\plugin.
             (Test-Path (Join-Path $Hermes 'plugins\neighbourhood\desktop\plugin.js'))
 Check 'plugin.js' $pluginOk 'standalone desktop pane'
 
+$prodPlugin = Join-Path $Repo 'desktop-plugin\plugin.js'
+$instPlugin = Join-Path $Hermes 'desktop-plugins\neighbourhood\plugin.js'
+if ((Test-Path $prodPlugin) -and (Test-Path $instPlugin)) {
+    $h1 = (Get-FileHash -LiteralPath $prodPlugin -Algorithm SHA256).Hash
+    $h2 = (Get-FileHash -LiteralPath $instPlugin -Algorithm SHA256).Hash
+    Check 'plugin-drift' ($h1 -eq $h2) $(if ($h1 -eq $h2) { 'product == installed' } else { 'run Install.cmd' })
+}
+$paneSnap = Join-Path $Hermes 'desktop-plugins\neighbourhood\snapshot.json'
+Check 'plugin-snapshot' (Test-Path $paneSnap) $paneSnap
+
 $bd = Get-Command bd -ErrorAction SilentlyContinue
 if (-not $bd) { $bd = Get-Command bd.cmd -ErrorAction SilentlyContinue }
 Check 'bd' ([bool]$bd) $(if ($bd) { 'on PATH' } else { 'optional; npm i -g @beads/bd' })
@@ -50,9 +60,9 @@ if (Test-Path (Join-Path $Board 'tools\nhood.py')) {
 
 if (-not $SkipPreflight -and (Test-Path (Join-Path $Board 'preflight\preflight.ps1'))) {
     $pre = Join-Path $Board 'preflight\preflight.ps1'
-    & powershell -NoProfile -ExecutionPolicy Bypass -File $pre
-    $preCode = $LASTEXITCODE
-    Check 'preflight' ($preCode -eq 0) "exit=$preCode (WARN does not fail)"
+    $env:NHOOD_HOME = $Board
+    $p = Start-Process -FilePath 'powershell' -ArgumentList @('-NoProfile','-ExecutionPolicy','Bypass','-File',$pre,'-BoardDir',$Board) -Wait -PassThru -NoNewWindow
+    Check 'preflight' ($p.ExitCode -eq 0) "exit=$($p.ExitCode) (WARN does not fail)"
 }
 
 if ($fail -gt 0) {

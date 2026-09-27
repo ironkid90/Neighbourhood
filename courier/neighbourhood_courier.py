@@ -18,6 +18,7 @@ Config (env or courier-config.json next to this script):
     POLL_SECONDS         poll interval (default 30)
 """
 
+import argparse
 import json
 import os
 import sys
@@ -32,7 +33,9 @@ COURIER_NAME = "telegram-courier"
 
 
 def utcnow() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace(
+        "+00:00", "Z"
+    )
 
 
 def load_config() -> dict:
@@ -76,7 +79,13 @@ class Telegram:
         url = f"https://api.telegram.org/bot{self.token}/sendMessage"
         body = json.dumps({"chat_id": self.chat_id, "text": text[:4096]}).encode()
         try:
-            with urllib.request.urlopen(url, data=body, timeout=15) as resp:
+            req = urllib.request.Request(
+                url,
+                data=body,
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            with urllib.request.urlopen(req, timeout=15) as resp:
                 return resp.status == 200
         except (urllib.error.URLError, OSError) as e:
             log(f"send failed: {e}")
@@ -130,7 +139,8 @@ class Board:
         except Exception as e:  # noqa: BLE001
             log(f"could not persist seen-set: {e}")
 
-    def unread_for_human(self) -> list[dict]:
+    def unread_for_human(self, relay_all: bool = False) -> list[dict]:
+        targets = ("human", "ALL") if relay_all else ("human",)
         out = []
         for f in sorted(self.handoffs.glob("*.json")):
             try:
@@ -139,7 +149,7 @@ class Board:
                 continue
             if h.get("id") in self.seen:
                 continue
-            if h.get("to_agent") in ("human", "ALL"):
+            if h.get("to_agent") in targets:
                 out.append(h)
         return out
 
@@ -165,7 +175,37 @@ class Board:
         log(f"posted reply to board: {summary[:80]}")
 
 
-def main() -> None:
+def parse_args(argv: list[str] | None = None):
+    p = argparse.ArgumentParser(
+        description="Telegram courier for the Neighbourhood board (human handoffs only)."
+    )
+    p.add_argument(
+        "--once",
+        action="store_true",
+        help="one poll cycle then exit (tests / Hermes --no-agent cron)",
+    )
+    p.add_argument(
+        "--relay-all",
+        action="store_true",
+        help="also relay to_agent=ALL (default: human only)",
+    )
+    return p.parse_args(argv)
+
+
+def tick(tg: Telegram, board: Board, relay_all: bool = False) -> None:
+    for h in board.unread_for_human(relay_all=relay_all):
+        text = (
+            f"🏘 <{h.get('from_agent','?')}> [{h.get('artifact_type','?')}]\n"
+            f"{h.get('summary','')}"
+        )
+        if tg.send(text):
+            board.mark_seen(h["id"])
+    for reply in tg.poll_replies():
+        board.post(COURIER_NAME, "ALL", "human_reply", reply)
+
+
+def main(argv: list[str] | None = None) -> None:
+    args = parse_args(argv)
     cfg = load_config()
     board_path = Path(cfg["board_dir"])
     if not board_path.is_dir():
@@ -174,24 +214,23 @@ def main() -> None:
 
     tg = Telegram(cfg["token"], cfg["chat_id"])
     board = Board(cfg["board_dir"])
-    log(f"watching board at {board.dir} every {POLL_SECONDS}s")
-    tg.send("📡 neighbourhood courier online. I'll relay handoffs addressed to you.")
+    log(f"watching board at {board.dir} every {POLL_SECONDS}s (relay={'ALL+human' if args.relay_all else 'human'})")
+    if not args.once:
+        tg.send("📡 neighbourhood courier online. I'll relay handoffs addressed to you.")
+
+    if args.once:
+        try:
+            tick(tg, board, relay_all=args.relay_all)
+        except Exception as e:  # noqa: BLE001
+            log(f"loop error: {e}")
+            sys.exit(1)
+        return
 
     while True:
         try:
-            for h in board.unread_for_human():
-                text = (
-                    f"🏘 <{h.get('from_agent','?')}> [{h.get('artifact_type','?')}]\n"
-                    f"{h.get('summary','')}"
-                )
-                if tg.send(text):
-                    board.mark_seen(h["id"])
-
-            for reply in tg.poll_replies():
-                board.post(COURIER_NAME, "ALL", "human_reply", reply)
+            tick(tg, board, relay_all=args.relay_all)
         except Exception as e:  # noqa: BLE001 - the courier must never die
             log(f"loop error (continuing): {e}")
-
         time.sleep(POLL_SECONDS)
 
 

@@ -52,13 +52,27 @@ COURIER = courier_dir()
 
 
 def hermes_home() -> Path:
+    """App root that owns desktop-plugins/, not a profile-scoped HERMES_HOME."""
+    candidates: list[Path] = []
     env = os.environ.get("HERMES_HOME")
     if env:
-        return Path(env)
+        candidates.append(Path(env))
     local = os.environ.get("LOCALAPPDATA")
     if local:
-        return Path(local) / "hermes"
-    return Path.home() / ".hermes"
+        candidates.append(Path(local) / "hermes")
+    candidates.append(Path.home() / ".hermes")
+    seen: set[Path] = set()
+    for start in candidates:
+        p = start
+        while p and p not in seen:
+            seen.add(p)
+            if (p / "desktop-plugins").is_dir():
+                return p
+            parent = p.parent
+            if parent == p:
+                break
+            p = parent
+    return candidates[0]
 
 
 def utcnow() -> str:
@@ -356,9 +370,9 @@ def snapshot() -> dict:
             {
                 "id": "courier",
                 "title": "Telegram courier",
-                "owner": "unclaimed",
-                "status": "ready",
-                "note": "Ships in-repo at courier/neighbourhood_courier.py. Dry-run until courier-config.json. Prefer Hermes cron --no-agent over a second long-running bot.",
+                "owner": "hermes",
+                "status": "done",
+                "note": "courier/neighbourhood_courier.py --once for tests/cron. Relays to_agent=human only (not ALL). Dry-run until courier-config.json. Prefer Hermes --no-agent cron.",
             },
             {
                 "id": "pkg",
