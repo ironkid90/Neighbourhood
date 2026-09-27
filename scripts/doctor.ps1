@@ -30,7 +30,9 @@ Check 'board' (Test-Path $Board) $Board
 Check 'nhood.py' (Test-Path (Join-Path $Board 'tools\nhood.py')) (Join-Path $Board 'tools\nhood.py')
 Check 'build.py' (Test-Path (Join-Path $Board 'dashboard\build.py')) (Join-Path $Board 'dashboard\build.py')
 Check 'status.json' (Test-Path (Join-Path $Board 'status.json')) 'coordination SoT'
-Check 'plugin.js' (Test-Path (Join-Path $Hermes 'desktop-plugins\neighbourhood\plugin.js')) 'standalone desktop pane'
+$pluginOk = (Test-Path (Join-Path $Hermes 'desktop-plugins\neighbourhood\plugin.js')) -or
+            (Test-Path (Join-Path $Hermes 'plugins\neighbourhood\desktop\plugin.js'))
+Check 'plugin.js' $pluginOk 'standalone desktop pane'
 
 $bd = Get-Command bd -ErrorAction SilentlyContinue
 if (-not $bd) { $bd = Get-Command bd.cmd -ErrorAction SilentlyContinue }

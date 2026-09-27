@@ -15,9 +15,22 @@ function Get-NhoodBoard {
 }
 
 function Get-HermesHome {
-    if ($env:HERMES_HOME) { return $env:HERMES_HOME }
-    if ($env:LOCALAPPDATA) { return (Join-Path $env:LOCALAPPDATA 'hermes') }
-    return (Join-Path $HOME '.hermes')
+    # App root, not a profile dir: HERMES_HOME may point at <root>\profiles\<name>.
+    # Walk up from any candidate until we find the root (owns desktop-plugins\).
+    $candidates = @()
+    if ($env:HERMES_HOME) { $candidates += $env:HERMES_HOME }
+    if ($env:LOCALAPPDATA) { $candidates += (Join-Path $env:LOCALAPPDATA 'hermes') }
+    $candidates += (Join-Path $HOME '.hermes')
+    foreach ($c in $candidates) {
+        $p = $c
+        while ($p) {
+            if (Test-Path (Join-Path $p 'desktop-plugins')) { return $p }
+            $parent = Split-Path $p -Parent
+            if ($parent -eq $p) { break }
+            $p = $parent
+        }
+    }
+    return $candidates[0]
 }
 
 function Get-NhoodPython {
