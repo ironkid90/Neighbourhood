@@ -1,0 +1,55 @@
+# Formula: nhood-feature
+# Type: workflow
+# Neighbourhood pour target — `python tools/nhood.py pour nhood-feature --var feature=...`
+# Do NOT `gt formula run` (that slings polecats / needs a town).
+
+description = """Neighbourhood feature workflow (Gas Town formula, no town).
+
+Pours a molecule of beads: design → implement → verify.
+File board stays coordination. Hermes kanban stays dispatcher.
+Never auto-assign a live roommate."""
+formula = "nhood-feature"
+version = 1
+
+[[steps]]
+id = "design"
+title = "Design {{feature}}"
+description = """
+Write the contract on the board (bead description + STEAL.md if UX).
+
+**Done when:**
+1. Scope fits Neighbourhood (no Mayor/polecats/beads-mcp unless human go)
+2. Acceptance criteria are testable
+3. Owner is named without hermes kanban --assignee
+"""
+
+[[steps]]
+id = "implement"
+title = "Implement {{feature}}"
+needs = ["design"]
+description = """
+Ship the slice. Keep it file-backed.
+
+**Done when:**
+1. Code lives under ~/.neighbourhood (or desktop-plugins/neighbourhood)
+2. No mcp.json / live config.yaml edits
+3. No secrets on the board
+"""
+
+[[steps]]
+id = "verify"
+title = "Verify {{feature}}"
+needs = ["implement"]
+description = """
+Rebuild the snapshot and prove it.
+
+**Done when:**
+1. python dashboard/build.py self-check OK
+2. snapshot.json contains the new fields
+3. Write-once handoff posted; rebuild once more so the pane sees it
+"""
+
+[vars]
+[vars.feature]
+description = "Short name of the feature being poured"
+required = true

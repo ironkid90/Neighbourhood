@@ -1,0 +1,8 @@
+{
+  "name": "neighbourhood",
+  "label": "Neighbourhood",
+  "description": "Read-only ops board: agent heartbeats, handoffs, MCP health.",
+  "icon": "Home",
+  "version": "0.2.0",
+  "api": "plugin_api.py"
+}

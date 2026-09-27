@@ -1,0 +1,24 @@
+# generated dashboard snapshot
+dashboard/index.html
+dashboard/snapshot.json
+
+# generated preflight
+preflight/health.json
+preflight/health-latest.log
+
+# secrets — never on the board
+courier-config.json
+**/.env
+**/*.pem
+
+# OS junk
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+*.db
+.beads-credential-key
+.beads/proxieddb/
+*.gate.lock*

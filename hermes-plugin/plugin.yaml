@@ -1,0 +1,10 @@
+name: neighbourhood
+version: 0.2.0
+description: "Read-only Neighbourhood ops board — agents, handoffs, MCP probes."
+manifest_version: 1
+kind: standalone
+author: hermes
+license: GPL-3.0
+capabilities: []
+requires_env: []
+python_dependencies: []
