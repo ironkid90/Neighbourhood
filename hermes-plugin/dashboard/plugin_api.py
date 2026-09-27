@@ -20,13 +20,15 @@ def _board() -> Path:
     )
 
 
-_BUILD = _board() / "dashboard" / "build.py"
+def _build_path() -> Path:
+    return _board() / "dashboard" / "build.py"
 
 
 def _load_build():
-    if not _BUILD.is_file():
-        raise FileNotFoundError(str(_BUILD))
-    return runpy.run_path(str(_BUILD), run_name="nhood_build")
+    build = _build_path()
+    if not build.is_file():
+        raise FileNotFoundError(str(build))
+    return runpy.run_path(str(build), run_name="nhood_build")
 
 
 @router.get("/snapshot")
@@ -44,8 +46,9 @@ def snapshot_endpoint():
 
 @router.get("/status")
 def status_endpoint():
+    build = _build_path()
     return {
-        "ok": _BUILD.is_file(),
-        "build": str(_BUILD),
+        "ok": build.is_file(),
+        "build": str(build),
         "read_only": True,
     }

@@ -728,6 +728,15 @@ def cmd_self_check(_args: argparse.Namespace) -> int:
     problems = []
     if not BOARD.is_dir():
         problems.append("missing ~/.neighbourhood")
+    status_path = BOARD / "status.json"
+    if not status_path.is_file():
+        problems.append("missing status.json")
+    else:
+        status = read_json(status_path, None)
+        if not isinstance(status, dict):
+            problems.append("status.json unparseable")
+    if not HANDOFFS.is_dir():
+        problems.append("missing handoffs/")
     try:
         which_bd()
     except SystemExit as exc:

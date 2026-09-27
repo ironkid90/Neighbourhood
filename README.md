@@ -22,7 +22,7 @@ That syncs this repo onto `~/.neighbourhood`, installs the Hermes desktop pane, 
 - **Hermes desktop pane** — sidebar **Neighbourhood**, status-bar **Nhood**, palette **Open Neighbourhood**
 - **Gastown-lite** — `python tools/nhood.py convoy|sling|pour|refine|trail` (no Mayor, no polecats)
 - **Beads DAG** — prefix `nhood`, embedded Dolt, in the board repo
-- **Telegram courier** — `courier/neighbourhood_courier.py` (dry-run until `courier-config.json`)
+- **Telegram courier** — `courier/neighbourhood_courier.py --once` (human handoffs only; dry-run until `courier-config.json`)
 
 Live instance data (handoffs, beads DB, heartbeats) stays on the board. This GitHub repo is the product.
 
@@ -30,7 +30,7 @@ Live instance data (handoffs, beads DB, heartbeats) stays on the board. This Git
 
 1. Hermes desktop: **⌘K → Reload desktop plugins** if the pane is missing.
 2. Optional Beads CLI: `npm install -g @beads/bd` then re-run `Install.cmd`.
-3. Courier: copy `courier/courier-config.example.json` → `courier-config.json` next to the script (never commit it). Prefer a Hermes `--no-agent` cron over a second bot.
+3. Courier: copy `courier/courier-config.example.json` → `courier-config.json` next to the script (never commit it). Prefer a Hermes `--no-agent` cron (`python courier/neighbourhood_courier.py --once`) over a second bot. Relays `to_agent=human` only.
 
 ```
 python ~/.neighbourhood/tools/nhood.py convoy create "Title" --tracks nhood-xxx

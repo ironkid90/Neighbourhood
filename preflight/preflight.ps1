@@ -6,7 +6,11 @@
 [CmdletBinding()]
 param(
     [switch]$Json,
-    [string]$BoardDir = $(if ($env:NEIGHBOURHOOD_BOARD_DIR) { $env:NEIGHBOURHOOD_BOARD_DIR } else { "$HOME/.neighbourhood" })
+    [string]$BoardDir = $(
+        if ($env:NHOOD_HOME) { $env:NHOOD_HOME }
+        elseif ($env:NEIGHBOURHOOD_BOARD_DIR) { $env:NEIGHBOURHOOD_BOARD_DIR }
+        else { "$HOME/.neighbourhood" }
+    )
 )
 
 $ErrorActionPreference = 'Continue'
