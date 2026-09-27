@@ -25,6 +25,10 @@ PC-wide ops board. Not Lucky5. Not a swarm factory.
 - `bd init` in Lucky5.
 - Ship `plugins/neighbourhood/desktop/plugin.js` while a marker-less standalone already exists under `desktop-plugins/neighbourhood/`.
 
+## Pitfalls
+
+- **`HERMES_HOME` is not always the app root.** A Hermes session may export it profile-scoped (`<root>/profiles/<name>`). `Get-HermesHome` in `scripts/common.ps1` must walk up until a directory owns `desktop-plugins\`. Trusting `$env:HERMES_HOME` verbatim makes Doctor/install look under the profile dir and false-FAIL `plugin.js` even when the pane is at `%LOCALAPPDATA%/hermes/desktop-plugins/neighbourhood/`. Doctor accepts either the standalone pane or `plugins/neighbourhood/desktop/plugin.js`.
+
 ## Verify
 
 ```
