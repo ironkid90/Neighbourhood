@@ -24,7 +24,9 @@ Atlas research and the install/skip/gate map: `docs/ATLAS_RUNTIME.md` and `catal
 
 - **File board** — `~/.neighbourhood/status.json` + `handoffs/` + `RULES.md` (coordination source of truth)
 - **HTML dashboard** — `python dashboard/build.py` → `dashboard/index.html`
+- **Live dashboard** — `scripts/start.ps1` launches `http://localhost:7700` (SSE live updates, handoff composer, ping buttons)
 - **Hermes desktop pane** — sidebar **Neighbourhood**, status-bar **Nhood**, palette **Open Neighbourhood**
+- **Smart router** — `python tools/router.py route "task description"` auto-triages and routes to the best agent
 - **Gastown-lite** — `python tools/nhood.py convoy|sling|pour|refine|trail` (no Mayor, no polecats)
 - **Beads DAG** — prefix `nhood`, embedded Dolt, in the board repo
 - **Telegram courier** — `courier/neighbourhood_courier.py` (dry-run until `courier-config.json`)
@@ -43,7 +45,47 @@ python ~/.neighbourhood/tools/nhood.py sling nhood-xxx --to backend-engineer --s
 python ~/.neighbourhood/tools/nhood.py pour nhood-feature --var feature=foo
 python ~/.neighbourhood/tools/nhood.py refine --dry-run
 python ~/.neighbourhood/dashboard/build.py
+
+# Smart router: auto-triage and route tasks
+python ~/.neighbourhood/tools/router.py route "fix the login form CSS" --dry-run
+python ~/.neighbourhood/tools/router.py route "add REST endpoint" --track --rebuild-snapshot
 ```
+
+## Smart Router
+
+The router (`tools/router.py`) auto-triages tasks and routes them to the best-suited agent based on declared capabilities.
+
+**How it works:**
+1. Agents declare capability tags in `~/.neighbourhood/status.json` (e.g., `backend`, `frontend`, `debug`)
+2. Router matches task keywords against a capability taxonomy
+3. Picks the highest-scoring agent (fresh + idle agents get priority)
+4. Posts a write-once handoff with the routing decision and context
+5. Optionally creates a beads issue for tracking
+
+**Declare your agent's capabilities:**
+```json
+{
+  "agent": "backend-engineer",
+  "status": "idle",
+  "capabilities": ["backend", "api", "database", "debug"]
+}
+```
+
+Run `python tools/router.py update-capabilities` to see the full tag list.
+
+**Examples:**
+```bash
+# Dry run: see routing decision without posting
+python tools/router.py route "fix the paytable CSS on mobile" --dry-run
+
+# Route and track in beads
+python tools/router.py route "add user authentication API" --track
+
+# Route and rebuild dashboard snapshot
+python tools/router.py route "update README" --rebuild-snapshot
+```
+
+Tasks that don't match any capability go to `hermes` (coordinator) for manual triage.
 
 ## Gated (do not run unless the human says go)
 

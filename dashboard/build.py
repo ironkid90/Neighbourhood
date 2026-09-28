@@ -52,13 +52,25 @@ COURIER = courier_dir()
 
 
 def hermes_home() -> Path:
+    """App root, not a profile dir. HERMES_HOME may be <root>/profiles/<name>."""
+    candidates: list[Path] = []
     env = os.environ.get("HERMES_HOME")
     if env:
-        return Path(env)
+        candidates.append(Path(env))
     local = os.environ.get("LOCALAPPDATA")
     if local:
-        return Path(local) / "hermes"
-    return Path.home() / ".hermes"
+        candidates.append(Path(local) / "hermes")
+    candidates.append(Path.home() / ".hermes")
+    for cand in candidates:
+        p = cand
+        for _ in range(8):
+            if (p / "desktop-plugins").is_dir():
+                return p
+            parent = p.parent
+            if parent == p:
+                break
+            p = parent
+    return candidates[0]
 
 
 def utcnow() -> str:
@@ -264,15 +276,21 @@ def load_gastown_lite() -> dict:
             text=True,
             encoding="utf-8",
             errors="replace",
-            timeout=25,
+            timeout=60,
         )
-    except (OSError, subprocess.TimeoutExpired):
+    except subprocess.TimeoutExpired:
+        empty["error"] = "snapshot-layer timeout"
+        return empty
+    except OSError as exc:
+        empty["error"] = f"snapshot-layer oserror: {exc}"
         return empty
     if out.returncode != 0:
+        empty["error"] = f"snapshot-layer exit {out.returncode}"
         return empty
     try:
         data = json.loads(out.stdout or "{}")
     except json.JSONDecodeError:
+        empty["error"] = "snapshot-layer json"
         return empty
     if not isinstance(data, dict):
         return empty
