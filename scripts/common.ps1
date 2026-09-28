@@ -89,3 +89,33 @@ function Write-NhoodLog {
     $stamp = (Get-Date).ToUniversalTime().ToString('s') + 'Z'
     Write-Host "[$stamp] [$Level] $Message"
 }
+
+function Get-HermesCli {
+    $found = Get-Command hermes -ErrorAction SilentlyContinue
+    if ($found) { return $found.Source }
+    $hermesHome = Get-HermesHome
+    $candidates = @(
+        (Join-Path $hermesHome 'hermes-agent\venv\Scripts\hermes.exe'),
+        (Join-Path $hermesHome 'bin\hermes.exe'),
+        (Join-Path $hermesHome 'hermes.exe')
+    )
+    foreach ($c in $candidates) {
+        if (Test-Path $c) { return $c }
+    }
+    return $null
+}
+
+function Test-HermesPluginPresent {
+    param(
+        [Parameter(Mandatory = $true)][string]$HermesCli,
+        [Parameter(Mandatory = $true)][string]$Name
+    )
+    $out = & $HermesCli plugins list 2>&1 | Out-String
+    if ($out -match [regex]::Escape($Name)) { return $true }
+    $hermesHome = Get-HermesHome
+    $pluginRoot = Join-Path $hermesHome 'plugins'
+    if (-not (Test-Path $pluginRoot)) { return $false }
+    $hit = Get-ChildItem -LiteralPath $pluginRoot -Recurse -Filter 'plugin.yaml' -ErrorAction SilentlyContinue |
+        Select-String -Pattern ("name:\s*" + [regex]::Escape($Name)) -List
+    return [bool]$hit
+}

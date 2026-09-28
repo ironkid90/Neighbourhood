@@ -4,7 +4,11 @@
 param(
     [switch]$SkipBeads,
     [switch]$SkipSnapshot,
-    [switch]$NoDesktopPlugin
+    [switch]$NoDesktopPlugin,
+    [switch]$SkipRuntime,
+    [switch]$NoToolInstall,
+    [switch]$PaperclipAdapter,
+    [switch]$MissionControl
 )
 
 $ErrorActionPreference = 'Stop'
@@ -18,12 +22,24 @@ Write-NhoodLog "repo  $Repo"
 Write-NhoodLog "board $Board"
 Write-NhoodLog "hermes $Hermes"
 
+if (-not $SkipRuntime) {
+    $rt = Join-Path $PSScriptRoot 'runtime.ps1'
+    if (-not (Test-Path $rt)) { throw "missing $rt" }
+    $argList = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $rt)
+    if (-not $NoToolInstall) { $argList += '-InstallMissingTools' }
+    if ($PaperclipAdapter) { $argList += '-PaperclipAdapter' }
+    if ($MissionControl) { $argList += '-MissionControl' }
+    $p = Start-Process -FilePath 'powershell' -ArgumentList $argList -Wait -PassThru -NoNewWindow
+    if ([int]$p.ExitCode -ne 0) { throw "runtime repair failed ($($p.ExitCode))" }
+    Write-NhoodLog 'runtime repair OK'
+}
+
 $py = Get-NhoodPython
 Write-NhoodLog "python $($py.Ver) ($($py.Cmd))"
 
 # --- board skeleton ----------------------------------------------------------
 New-Item -ItemType Directory -Path $Board -Force | Out-Null
-foreach ($d in @('dashboard', 'tools', 'preflight', 'handoffs', 'courier', '.beads\formulas')) {
+foreach ($d in @('dashboard', 'tools', 'preflight', 'handoffs', 'courier', '.beads\formulas', 'catalog', 'runtime')) {
     New-Item -ItemType Directory -Path (Join-Path $Board $d) -Force | Out-Null
 }
 
@@ -52,6 +68,8 @@ $sync = @(
     @{ From = 'courier\neighbourhood_courier.py'; To = 'courier\neighbourhood_courier.py' }
     @{ From = 'courier\courier-config.example.json'; To = 'courier\courier-config.example.json' }
     @{ From = 'formulas\nhood-feature.formula.toml'; To = '.beads\formulas\nhood-feature.formula.toml' }
+    @{ From = 'catalog\atlas.json'; To = 'catalog\atlas.json' }
+    @{ From = 'docs\ATLAS_RUNTIME.md'; To = 'catalog\ATLAS_RUNTIME.md' }
 )
 foreach ($item in $sync) {
     $from = Join-Path $Repo $item.From
@@ -126,5 +144,6 @@ Write-Host ''
 Write-Host 'Next:'
 Write-Host "  double-click Start.cmd    (rebuild snapshot + open HTML)"
 Write-Host "  double-click Doctor.cmd   (health gate)"
+Write-Host "  double-click Runtime.cmd  (repair Hermes + Superpowers only)"
 Write-Host "  Hermes: Reload desktop plugins  (sidebar Neighbourhood)"
-Write-Host "Gated (do not run unless asked): gt install, Mayor, polecats, beads-mcp, plugins.enabled"
+Write-Host "Gated (do not run unless asked): gt install, Mayor, polecats, beads-mcp, plugins.enabled, Mission Control start, Paperclip company"

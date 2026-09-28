@@ -30,6 +30,29 @@ Check 'board' (Test-Path $Board) $Board
 Check 'nhood.py' (Test-Path (Join-Path $Board 'tools\nhood.py')) (Join-Path $Board 'tools\nhood.py')
 Check 'build.py' (Test-Path (Join-Path $Board 'dashboard\build.py')) (Join-Path $Board 'dashboard\build.py')
 Check 'status.json' (Test-Path (Join-Path $Board 'status.json')) 'coordination SoT'
+$catalog = Join-Path $Board 'catalog\atlas.json'
+if (Test-Path $catalog) {
+    Check 'catalog' $true $catalog
+} else {
+    $repoCatalog = Join-Path $Repo 'catalog\atlas.json'
+    Check 'catalog' (Test-Path $repoCatalog) 'product catalog/atlas.json (run Install.cmd to sync)'
+}
+$hermesCli = Get-HermesCli
+Check 'hermes' ([bool]$hermesCli) $(if ($hermesCli) { $hermesCli } else { 'CLI missing; Runtime.cmd' })
+if ($hermesCli) {
+    $sp = Test-HermesPluginPresent -HermesCli $hermesCli -Name 'superpowers'
+    if ($sp) {
+        Check 'superpowers' $true 'hermes plugin'
+    } else {
+        Write-Host ("{0,-7} {1,-22} {2}" -f 'WARN', 'superpowers', 'not installed; Runtime.cmd')
+    }
+}
+$gitCmd = Get-Command git -ErrorAction SilentlyContinue
+if ($gitCmd) {
+    Check 'git' $true 'on PATH'
+} else {
+    Write-Host ("{0,-7} {1,-22} {2}" -f 'WARN', 'git', 'not on PATH')
+}
 $pluginOk = (Test-Path (Join-Path $Hermes 'desktop-plugins\neighbourhood\plugin.js')) -or
             (Test-Path (Join-Path $Hermes 'plugins\neighbourhood\desktop\plugin.js'))
 Check 'plugin.js' $pluginOk 'standalone desktop pane'

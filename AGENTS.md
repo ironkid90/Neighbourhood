@@ -19,6 +19,8 @@ PC-wide ops board. Not Lucky5. Not a swarm factory.
 ## Do not
 
 - `gt install ~/gt`, Mayor, polecats, or beads-mcp unless the human says go.
+- Start Mission Control or a Paperclip company from 1-click (vendor flags clone/npm only).
+- Dump-install Atlas lists (extra GUIs, extra memory providers, TradingAgents).
 - Auto-dispatch a live roommate. Leave cards unassigned or blocked while that profile is in the room.
 - Steal a claimed bead (`bd update --claim` errors if another actor holds it).
 - Edit `mcp.json` / live `config.yaml` without a hub plan + go.
@@ -33,6 +35,7 @@ PC-wide ops board. Not Lucky5. Not a swarm factory.
 
 ```
 Doctor.cmd
+Runtime.cmd
 python tests/test_smoke.py
 python dashboard/build.py
 ```

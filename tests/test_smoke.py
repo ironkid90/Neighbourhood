@@ -90,6 +90,33 @@ def test_plugin_portable() -> None:
     check("plugin lastSnapshot", "lastSnapshot" in js and "htmlPathFromSnapshot" in js)
 
 
+def test_catalog() -> None:
+    path = ROOT / "catalog" / "atlas.json"
+    data = json.loads(path.read_text(encoding="utf-8"))
+    check("catalog schema", data.get("schema_version") == 1)
+    policy = data.get("policy") or {}
+    check("catalog control_plane", policy.get("control_plane") == "neighbourhood")
+    check("catalog memory", policy.get("memory") == "mem0")
+    check("catalog mcp", policy.get("mcp") == "mcp-hub")
+    never = policy.get("never_auto") or []
+    check("catalog never mcp.json", any("mcp.json" in x for x in never))
+    allowed = {"have", "install", "optional", "gated", "skip"}
+    modules = data.get("modules") or []
+    check("catalog modules", len(modules) >= 10, f"count={len(modules)}")
+    ids = []
+    for mod in modules:
+        mid = mod.get("id")
+        ids.append(mid)
+        check(f"catalog tier:{mid}", mod.get("tier") in allowed, str(mod.get("tier")))
+    check("catalog unique ids", len(ids) == len(set(ids)))
+    by_id = {m["id"]: m for m in modules}
+    check("catalog superpowers install", by_id.get("superpowers", {}).get("tier") == "install")
+    check("catalog mc gated", by_id.get("mission-control", {}).get("tier") == "gated")
+    check("catalog paperclip optional", by_id.get("paperclip-adapter", {}).get("tier") == "optional")
+    cases = data.get("use_cases") or []
+    check("catalog 14 use-cases", len(cases) == 14, f"count={len(cases)}")
+
+
 def test_no_secrets() -> None:
     real_cfg = ROOT / "courier" / "courier-config.json"
     check("no courier-config.json", not real_cfg.is_file(), "example only")
@@ -102,6 +129,7 @@ def test_product_layout() -> None:
         "Install.cmd",
         "Start.cmd",
         "Doctor.cmd",
+        "Runtime.cmd",
         "dashboard/build.py",
         "tools/nhood.py",
         "desktop-plugin/plugin.js",
@@ -109,6 +137,9 @@ def test_product_layout() -> None:
         "templates/RULES.md",
         "templates/status.json",
         "scripts/install.ps1",
+        "scripts/runtime.ps1",
+        "catalog/atlas.json",
+        "docs/ATLAS_RUNTIME.md",
         "courier/neighbourhood_courier.py",
     ]
     for rel in required:
@@ -124,6 +155,7 @@ def main() -> int:
     test_plugin_portable()
     test_no_secrets()
     test_product_layout()
+    test_catalog()
     print(f"{'FAIL' if FAIL else 'PASS'} smoke ({FAIL} failure(s))")
     return 1 if FAIL else 0
 

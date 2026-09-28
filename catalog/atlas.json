@@ -1,0 +1,335 @@
+{
+  "schema_version": 1,
+  "source": "https://hermesatlas.com",
+  "updated": "2026-09-28",
+  "title": "Neighbourhood Atlas runtime catalog",
+  "policy": {
+    "control_plane": "neighbourhood",
+    "memory": "mem0",
+    "mcp": "mcp-hub",
+    "models_proxy": "cc-switch",
+    "desktop": "hermes-native",
+    "never_auto": [
+      "second orchestrator on :3000",
+      "mcp.json edits",
+      "live config.yaml edits",
+      "gt install ~/gt",
+      "Mayor / polecats",
+      "beads-mcp",
+      "mega-plugin that owns Telegram",
+      "stacking extra memory providers on mem0",
+      "TradingAgents / swarm factory"
+    ],
+    "notes": "Atlas lists 150+ projects. Neighbourhood 1-click installs the PC runtime plus Superpowers, vendors optional adapters, and documents the rest. It does not dump-install competing control planes."
+  },
+  "use_cases": [
+    {
+      "id": "always-on-personal-ops-agent",
+      "atlas": "https://hermesatlas.com/use-cases/always-on-personal-ops-agent",
+      "answer": "Hermes gateway + cron + Mem0 + Telegram Gabz. Do not add hermes-autonomous-server (Linux systemd) or a second web UI."
+    },
+    {
+      "id": "hermes-in-your-pocket",
+      "atlas": "https://hermesatlas.com/use-cases/hermes-in-your-pocket",
+      "answer": "Telegram courier already in this product. Skip hermes-webui / Hermex / Mini App unless a phone client is requested."
+    },
+    {
+      "id": "codebase-aware-coding-agent",
+      "atlas": "https://hermesatlas.com/use-cases/codebase-aware-coding-agent",
+      "answer": "Install Superpowers. Optional later: codegraph. Do not add a second memory layer."
+    },
+    {
+      "id": "cut-your-token-bill",
+      "atlas": "https://hermesatlas.com/use-cases/cut-your-token-bill",
+      "answer": "Measure first (tokscale optional). Do not auto-slim tool schemas."
+    },
+    {
+      "id": "multi-agent-build-pipeline",
+      "atlas": "https://hermesatlas.com/use-cases/multi-agent-build-pipeline",
+      "answer": "Neighbourhood IS this stack (file board + kanban + beads + nhood.py). Atlas caveat: two orchestrators confuse. Mission Control stays gated."
+    },
+    {
+      "id": "fully-self-hosted-private-stack",
+      "atlas": "https://hermesatlas.com/use-cases/fully-self-hosted-private-stack",
+      "answer": "This PC already runs Hermes locally. Docker sandbox / Ollama stack are optional, not default."
+    },
+    {
+      "id": "obsidian-second-brain",
+      "atlas": "https://hermesatlas.com/use-cases/obsidian-second-brain",
+      "answer": "Hermes already ships an obsidian skill. Leave Mem0 as the session memory provider."
+    },
+    {
+      "id": "content-engine-in-your-voice",
+      "atlas": "https://hermesatlas.com/use-cases/content-engine-in-your-voice",
+      "answer": "Existing humanizer + creative skills. No extra GUI."
+    },
+    {
+      "id": "generative-media-studio",
+      "atlas": "https://hermesatlas.com/use-cases/generative-media-studio",
+      "answer": "Existing media / image_gen / video_gen tools. No extra studio app."
+    },
+    {
+      "id": "daily-research-briefing",
+      "atlas": "https://hermesatlas.com/use-cases/daily-research-briefing",
+      "answer": "Hermes cron + arxiv/exa. Courier can relay to_agent=human."
+    },
+    {
+      "id": "agent-that-browses-the-web",
+      "atlas": "https://hermesatlas.com/use-cases/agent-that-browses-the-web",
+      "answer": "playwright + chrome-devtools + browser-use already on this Hermes. Do not add a second browser MCP."
+    },
+    {
+      "id": "run-hermes-for-your-team",
+      "atlas": "https://hermesatlas.com/use-cases/run-hermes-for-your-team",
+      "answer": "Neighbourhood room + profiles. Skip control-room templates that replace the board."
+    },
+    {
+      "id": "guardrails-before-it-touches-prod",
+      "atlas": "https://hermesatlas.com/use-cases/guardrails-before-it-touches-prod",
+      "answer": "Hermes approval modes + nhood.py refine fail-closed. Do not swap in a Hermes fork."
+    },
+    {
+      "id": "see-what-your-agent-is-doing",
+      "atlas": "https://hermesatlas.com/use-cases/see-what-your-agent-is-doing",
+      "answer": "Neighbourhood dashboard + desktop pane + Hermes sessions. Optional: claude-tap."
+    }
+  ],
+  "modules": [
+    {
+      "id": "pc-python",
+      "atlas": null,
+      "github": null,
+      "tier": "install",
+      "action": "ensure",
+      "why": "Python 3.11+ required (tomllib). winget Python.Python.3.12 if missing."
+    },
+    {
+      "id": "pc-git",
+      "atlas": null,
+      "github": null,
+      "tier": "install",
+      "action": "ensure",
+      "why": "Board git repo + beads. winget Git.Git if missing."
+    },
+    {
+      "id": "pc-node",
+      "atlas": null,
+      "github": null,
+      "tier": "install",
+      "action": "ensure",
+      "why": "bd CLI via npm; optional adapters. winget OpenJS.NodeJS.LTS if missing."
+    },
+    {
+      "id": "pc-uv",
+      "atlas": null,
+      "github": null,
+      "tier": "install",
+      "action": "ensure",
+      "why": "Hermes/MCP uvx path. winget astral-sh.uv if missing. WARN only."
+    },
+    {
+      "id": "hermes-cli",
+      "atlas": "NousResearch/hermes-agent",
+      "github": "https://github.com/NousResearch/hermes-agent",
+      "tier": "install",
+      "action": "repair",
+      "why": "Find hermes, run doctor, do not curl|bash overwrite, do not gateway reinstall (drops cron)."
+    },
+    {
+      "id": "beads-cli",
+      "atlas": null,
+      "github": "https://github.com/steveyegge/beads",
+      "tier": "install",
+      "action": "ensure",
+      "why": "npm i -g @beads/bd if missing. Board DAG, not a Gas Town town."
+    },
+    {
+      "id": "superpowers",
+      "atlas": "https://hermesatlas.com/projects/obra/superpowers",
+      "github": "https://github.com/obra/superpowers",
+      "tier": "install",
+      "action": "hermes-plugin",
+      "install": "hermes plugins install obra/superpowers --enable",
+      "why": "Official Hermes plugin. TDD / plan / review methodology. Top Atlas skill (292k)."
+    },
+    {
+      "id": "mem0",
+      "atlas": "https://hermesatlas.com/projects/mem0ai/mem0",
+      "github": "https://github.com/mem0ai/mem0",
+      "tier": "have",
+      "action": "keep",
+      "why": "Already the live memory provider. Do not stack OpenViking/Hindsight/Cognee/gbrain."
+    },
+    {
+      "id": "cc-switch",
+      "atlas": "https://hermesatlas.com/projects/farion1231/cc-switch",
+      "github": "https://github.com/farion1231/cc-switch",
+      "tier": "have",
+      "action": "keep",
+      "why": "Owns models/proxy only. Hub owns MCP. Do not let CC Switch write MCP configs."
+    },
+    {
+      "id": "mcp-hub",
+      "atlas": null,
+      "github": null,
+      "tier": "have",
+      "action": "keep",
+      "why": "Canonical MCP registry at ~/.mcp-hub. 1-click never edits mcp.json."
+    },
+    {
+      "id": "neighbourhood",
+      "atlas": null,
+      "github": "https://github.com/ironkid90/Neighbourhood",
+      "tier": "have",
+      "action": "install-product",
+      "why": "This repo. File board + dashboard + desktop pane + gastown-lite."
+    },
+    {
+      "id": "playwright-chrome",
+      "atlas": "https://hermesatlas.com/use-cases/agent-that-browses-the-web",
+      "github": null,
+      "tier": "have",
+      "action": "keep",
+      "why": "playwright + chrome-devtools + browser-use already on Hermes. Skip vessel-browser / extra browser MCP."
+    },
+    {
+      "id": "paperclip-adapter",
+      "atlas": "https://hermesatlas.com/projects/NousResearch/hermes-paperclip-adapter",
+      "github": "https://github.com/NousResearch/hermes-paperclip-adapter",
+      "tier": "optional",
+      "action": "vendor-npm",
+      "flag": "-PaperclipAdapter",
+      "install": "npm install hermes-paperclip-adapter --prefix <board>/runtime/paperclip-adapter",
+      "why": "Bridge only. Useless without a Paperclip company (paperclip.ing). Do not start a Paperclip server from 1-click."
+    },
+    {
+      "id": "mission-control",
+      "atlas": "https://hermesatlas.com/projects/builderz-labs/mission-control",
+      "github": "https://github.com/builderz-labs/mission-control",
+      "tier": "gated",
+      "action": "clone-only",
+      "flag": "-MissionControl",
+      "why": "Self-hosted control plane on :3000. Atlas: two orchestrators confuse. Neighbourhood already owns dispatch/review. Clone with flag, never auto-start."
+    },
+    {
+      "id": "tokscale",
+      "atlas": "https://hermesatlas.com/projects/junhoyeo/tokscale",
+      "github": "https://github.com/junhoyeo/tokscale",
+      "tier": "optional",
+      "action": "document",
+      "why": "Token ledger. Measure before cutting. Not required for board ops."
+    },
+    {
+      "id": "claude-tap",
+      "atlas": "https://hermesatlas.com/projects/liaohch3/claude-tap",
+      "github": "https://github.com/liaohch3/claude-tap",
+      "tier": "optional",
+      "action": "document",
+      "why": "Local API trace viewer. Secrets land in traces. Opt-in only."
+    },
+    {
+      "id": "codegraph",
+      "atlas": "https://hermesatlas.com/projects/colbymchenry/codegraph",
+      "github": "https://github.com/colbymchenry/codegraph",
+      "tier": "optional",
+      "action": "document",
+      "why": "Pre-indexed code graph. Add later if Lucky5/repo token burn needs it. Do not add to hub without plan+go."
+    },
+    {
+      "id": "gt-town",
+      "atlas": null,
+      "github": "https://github.com/steveyegge/gastown",
+      "tier": "gated",
+      "action": "none",
+      "why": "gt install ~/gt, Mayor, polecats. Needs tmux + Dolt server. Beads already works with embedded Dolt."
+    },
+    {
+      "id": "beads-mcp",
+      "atlas": null,
+      "github": null,
+      "tier": "gated",
+      "action": "none",
+      "why": "Do not add to MCP hub without plan+go."
+    },
+    {
+      "id": "minions",
+      "atlas": "https://hermesatlas.com/projects/agent37-platform/minions",
+      "github": "https://github.com/agent37-platform/minions",
+      "tier": "skip",
+      "action": "none",
+      "why": "Second kanban/review surface. Neighbourhood already has review via refine + desktop pane."
+    },
+    {
+      "id": "tradingagents",
+      "atlas": "https://hermesatlas.com/projects/TauricResearch/TradingAgents",
+      "github": "https://github.com/TauricResearch/TradingAgents",
+      "tier": "skip",
+      "action": "none",
+      "why": "Financial trading swarm. Not PC ops. Not Lucky5."
+    },
+    {
+      "id": "agent-of-empires",
+      "atlas": "https://hermesatlas.com/projects/agent-of-empires/agent-of-empires",
+      "github": "https://github.com/agent-of-empires/agent-of-empires",
+      "tier": "skip",
+      "action": "none",
+      "why": "Fleet TUI/web that wants to own tmux agents. Conflicts with Neighbourhood room."
+    },
+    {
+      "id": "swarmclaw",
+      "atlas": "https://hermesatlas.com/projects/swarmclawai/swarmclaw",
+      "github": "https://github.com/swarmclawai/swarmclaw",
+      "tier": "skip",
+      "action": "none",
+      "why": "Swarm factory. RULES.md forbids unless the human asks."
+    },
+    {
+      "id": "hermes-webui",
+      "atlas": "https://hermesatlas.com/projects/nesquena/hermes-webui",
+      "github": "https://github.com/nesquena/hermes-webui",
+      "tier": "skip",
+      "action": "none",
+      "why": "Third GUI. Hermes desktop + Neighbourhood pane + Telegram already cover chat/ops."
+    },
+    {
+      "id": "aionui",
+      "atlas": "https://hermesatlas.com/projects/iOfficeAI/AionUi",
+      "github": "https://github.com/iOfficeAI/AionUi",
+      "tier": "skip",
+      "action": "none",
+      "why": "Cowork app that wants to own agents and Telegram. User rejected a mega-plugin that boots Hermes and owns Telegram."
+    },
+    {
+      "id": "open-design",
+      "atlas": "https://hermesatlas.com/projects/nexu-io/open-design",
+      "github": "https://github.com/nexu-io/open-design",
+      "tier": "skip",
+      "action": "none",
+      "why": "Design plugin/desktop. Existing claude-design / creative skills cover this."
+    },
+    {
+      "id": "cybersecurity-skills-pack",
+      "atlas": "https://hermesatlas.com/projects/mukul975/Anthropic-Cybersecurity-Skills",
+      "github": "https://github.com/mukul975/Anthropic-Cybersecurity-Skills",
+      "tier": "skip",
+      "action": "none",
+      "why": "817 skills. Would bloat the default load path. Archive-on-request only."
+    },
+    {
+      "id": "other-memory-providers",
+      "atlas": "https://hermesatlas.com/lists/best-memory-providers",
+      "github": null,
+      "tier": "skip",
+      "action": "none",
+      "why": "37 providers. Mem0 is live. Stacking memory layers is the usual silent-cloud-leak."
+    },
+    {
+      "id": "other-guis",
+      "atlas": "https://hermesatlas.com/lists/workspaces-and-guis",
+      "github": null,
+      "tier": "skip",
+      "action": "none",
+      "why": "24 GUIs. Native Hermes desktop is the surface. Neighbourhood pane is board glue only."
+    }
+  ]
+}

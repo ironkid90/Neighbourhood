@@ -5,13 +5,18 @@ Not Lucky5. Not a Gas Town town. Not a swarm factory.
 
 **1-click (Windows):** double-click `Install.cmd`.
 
-That syncs this repo onto `~/.neighbourhood`, installs the Hermes desktop pane, runs smoke tests, rebuilds the snapshot, then opens the HTML dashboard.
+That repairs the PC/Hermes runtime, installs Superpowers, syncs this repo onto `~/.neighbourhood`, installs the Hermes desktop pane, runs smoke tests, rebuilds the snapshot, then opens the HTML dashboard.
+
+Fix-only: double-click `Runtime.cmd` (Hermes doctor + missing tools + Superpowers; does not clobber the board).
+
+Atlas research and the install/skip/gate map: `docs/ATLAS_RUNTIME.md` and `catalog/atlas.json`.
 
 | Script | What it does |
 |---|---|
-| `Install.cmd` | Install + first start |
+| `Install.cmd` | Runtime repair + install + first start |
+| `Runtime.cmd` | Repair Hermes / PC tools / Superpowers only |
 | `Start.cmd` | Rebuild snapshot and open the dashboard |
-| `Doctor.cmd` | Health gate (Python, board, beads, preflight) |
+| `Doctor.cmd` | Health gate (Python, board, beads, Hermes, catalog, preflight) |
 | `scripts/snapshot.ps1` | Rebuild snapshot only |
 | `scripts/uninstall.ps1` | Remove plugins; pass `-WipeBoard` to delete `~/.neighbourhood` |
 
@@ -47,11 +52,15 @@ python ~/.neighbourhood/dashboard/build.py
 - beads-mcp in the MCP hub
 - `hermes kanban --assignee` (that **spawns** a live roommate)
 - Editing `~/.mcp-hub/mcp.json` or live `config.yaml`
+- Starting Mission Control (`:3000`) or a Paperclip company
+- Extra memory providers / extra GUIs / extra browser MCP (see `catalog/atlas.json`)
+
+Optional install flags (vendor only, no auto-start): `Install.cmd -PaperclipAdapter` and `Install.cmd -MissionControl`.
 
 ## Layout
 
 ```
-Install.cmd / Start.cmd / Doctor.cmd
+Install.cmd / Start.cmd / Doctor.cmd / Runtime.cmd
 dashboard/build.py          HTML + snapshot generator
 tools/nhood.py              convoy / sling / pour / refine / trail
 desktop-plugin/plugin.js    Hermes standalone pane
@@ -59,8 +68,9 @@ hermes-plugin/              opt-in FastAPI backend (not auto-enabled)
 courier/                    Telegram relay
 formulas/                   poured into ~/.neighbourhood/.beads/formulas
 templates/                  RULES.md, empty status.json, board .gitignore
-scripts/                    install / start / doctor / snapshot / uninstall
-tests/test_smoke.py         compile + layout + portable plugin
+catalog/atlas.json          Atlas research: have / install / optional / gated / skip
+scripts/                    install / runtime / start / doctor / snapshot / uninstall
+tests/test_smoke.py         compile + layout + catalog + portable plugin
 ```
 
 Env: `NHOOD_HOME` or `NEIGHBOURHOOD_BOARD_DIR` overrides the board path (default `~/.neighbourhood`).
